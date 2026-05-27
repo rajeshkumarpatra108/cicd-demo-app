@@ -5,7 +5,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'YOUR_GITHUB_REPO'
+                git 'https://github.com/rajeshkumarpatra108/cicd-demo-app.git'
             }
         }
 
