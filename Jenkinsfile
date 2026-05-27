@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "cicd-demo-app"
+        CONTAINER_NAME = "cicd-demo-container"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -10,15 +15,35 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
                 sh 'npm test || true'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                sh '''
+                docker stop $CONTAINER_NAME || true
+                docker rm $CONTAINER_NAME || true
+
+                docker run -d \
+                  --name $CONTAINER_NAME \
+                  -p 4001:4000 \
+                  $IMAGE_NAME
+                '''
             }
         }
     }
